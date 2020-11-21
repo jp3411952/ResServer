@@ -7,8 +7,12 @@
 package main
 
 import (
+	"ResServer/global"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"os"
 )
 
 
@@ -52,16 +56,30 @@ import (
 //	c.File("./html/c.rar")
 //}
 
-func Page(){
 
+
+func   GetVserion(c *gin.Context){
+	
+	fmt.Printf(c.Request.RemoteAddr)
+	jsonfile,erro := os.Open("version.json")
+	if erro != nil {
+		c.JSON(http.StatusOK,gin.H{
+			"erro" : erro,
+		})
+		return
+	}
+	jsond :=  json.NewDecoder(jsonfile)
+	if jsond == nil {
+		fmt.Printf("json decoder 失败")
+		return
+	}
+	var resp  gin.H
+	jsond.Decode(&resp)
+	c.JSON(http.StatusOK,resp)
 }
 
+
 func main() {
-	r := gin.Default()
-	//r.GET("/getname",GetName)
-	//r.POST("/postget",PostName)
-	//r.POST("/uploadfile",uploadfile)
-	//r.GET("/dfile",DowloadFile)
-	r.Run(":8081") // listen and serve on 0.0.0.0:8080
-	fmt.Println("运行后面")
+	global.G_ginEngine.GET("/getVersion",GetVserion)
+	global.G_ginEngine.Run(":9090")
 }
