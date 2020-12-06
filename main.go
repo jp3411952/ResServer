@@ -56,16 +56,23 @@ import (
 //	c.File("./html/c.rar")
 //}
 
+//资源文件
+var resp  gin.H
 
 
-func   GetVserion(c *gin.Context){
-	
-	fmt.Printf(c.Request.RemoteAddr)
+
+func main() {
+	loadVersion()
+	global.G_ginEngine.GET("/reload",RLoadVersion)
+	global.G_ginEngine.GET("/getVersion",GetVserion)
+	global.G_ginEngine.Run(":9090")
+}
+
+
+func loadVersion()  {
 	jsonfile,erro := os.Open("version.json")
 	if erro != nil {
-		c.JSON(http.StatusOK,gin.H{
-			"erro" : erro,
-		})
+		fmt.Println(erro)
 		return
 	}
 	jsond :=  json.NewDecoder(jsonfile)
@@ -73,13 +80,13 @@ func   GetVserion(c *gin.Context){
 		fmt.Printf("json decoder 失败")
 		return
 	}
-	var resp  gin.H
 	jsond.Decode(&resp)
+}
+func   RLoadVersion(c *gin.Context){
+	loadVersion()
 	c.JSON(http.StatusOK,resp)
 }
 
-
-func main() {
-	global.G_ginEngine.GET("/getVersion",GetVserion)
-	global.G_ginEngine.Run(":9090")
+func   GetVserion(c *gin.Context){
+	c.JSON(http.StatusOK,resp)
 }
